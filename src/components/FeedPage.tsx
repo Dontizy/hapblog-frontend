@@ -8,6 +8,7 @@ import ErrorState from "./ErrorState";
 import { Button } from "./ui/button";
 import { useState, useRef } from "react";
 
+
 export default function FeedPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -125,29 +126,6 @@ export default function FeedPage() {
               </div>
             )}
           </section>
-          <div className="mt-2 flex items-center justify-center gap-6 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 1}
-              onClick={handlePrev}
-            >
-              Previous
-            </Button>
-
-            <span className="text-sm font-medium text-muted-foreground">
-              Page {data?.currentPage} of {data?.totalPages}
-            </span>
-
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === data?.totalPages}
-              onClick={handleNext}
-            >
-              Next
-            </Button>
-          </div>
 
           {/* Sidebar */}
           <aside className="hidden lg:block">
@@ -192,6 +170,30 @@ export default function FeedPage() {
           </aside>
         </div>
       </div>
+
+       <div className=" mb-6 flex items-center justify-center gap-6">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1}
+              onClick={handlePrev}
+            >
+              Previous
+            </Button>
+
+            <span className="text-sm font-medium text-muted-foreground">
+              Page {data?.currentPage} of {data?.totalPages}
+            </span>
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === data?.totalPages}
+              onClick={handleNext}
+            >
+              Next
+            </Button>
+          </div>
     </main>
   );
 }

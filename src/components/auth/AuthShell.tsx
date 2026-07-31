@@ -1,3 +1,4 @@
+// components/auth/AuthShell.tsx
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -10,7 +11,6 @@ interface AuthShellProps {
   children: ReactNode;
   footer?: ReactNode;
 }
-
 
 export default function AuthShell({
   title,
@@ -31,7 +31,6 @@ export default function AuthShell({
             <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight">
               {title}
             </h1>
-
             <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
               {subtitle}
             </p>
@@ -48,10 +47,7 @@ export default function AuthShell({
       </main>
 
       <footer className="px-4 py-6 text-center text-xs text-muted-foreground">
-        <Link
-          to="/"
-          className="hover:text-foreground transition-colors"
-        >
+        <Link to="/" className="hover:text-foreground transition-colors">
           Back to home
         </Link>
       </footer>

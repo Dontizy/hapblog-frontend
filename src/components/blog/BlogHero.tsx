@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Blog } from "../../lib/blog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Badge } from "../ui/badge";
-
-
+import placeHolderImage from "../../public/img/Hapblog-image.png";
 
 interface BlogHeroProps {
   blog: Blog;
@@ -17,17 +15,34 @@ export default function BlogHero({ blog }: BlogHeroProps) {
 
   return (
     <section className="space-y-8">
-      {/* Author */}
-      <div className="flex items-center gap-4">
-        <Avatar className="h-12 w-12">
-          <AvatarImage src={blog.author.avatar} />
+      {/* Title first — the reader decides whether to stay here, so it leads */}
+      <h1
+        className="
+          text-balance
+          font-serif
+          text-4xl
+          font-semibold
+          leading-[1.08]
+          tracking-tight
+          text-foreground
+          md:text-5xl
+          lg:text-[3.4rem]
+        "
+      >
+        {blog.title}
+      </h1>
+
+      {/* Byline */}
+      <div className="flex items-center gap-3 border-b border-border pb-8">
+        <Avatar className="h-11 w-11">
+          <AvatarImage src={blog.author.avatar} alt={blog.author.name} />
           <AvatarFallback>{blog.author.name.charAt(0)}</AvatarFallback>
         </Avatar>
 
-        <div>
+        <div className="leading-tight">
           <Link
             to={`/profile/${blog.author._id}`}
-            className="font-semibold hover:underline"
+            className="font-medium text-foreground hover:underline"
           >
             {blog.author.name}
           </Link>
@@ -38,45 +53,20 @@ export default function BlogHero({ blog }: BlogHeroProps) {
               day: "numeric",
               year: "numeric",
             })}
-            {" • "}
+            <span className="mx-1.5">·</span>
             {readingTime} min read
           </div>
         </div>
       </div>
-      {/* Cover Image */}
-      {blog.imageUrl && (
-        <div className="overflow-hidden mt-2 rounded-2xl shadow-xl ring-1 ring-border border border-border">
-          <img
-            src={blog.imageUrl}
-            alt={blog.title}
-            className="h-60 w-full object-cover md:h-105"
-          />
-        </div>
-      )}
 
-      {/* Title */}
-    <div className="space-y-5">
-  <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
-    Career
-  </Badge>
-
-  <h1
-    className="
-      max-w-4xl
-      text-pretty
-      font-serif
-      text-4xl
-      font-semibold
-      leading-[1.05]
-      tracking-tight
-      md:text-5xl
-      lg:text-6xl
-    "
-  >
-    {blog.title}
-  </h1>
-
-</div>
+      {/* Cover image */}
+      <div className="overflow-hidden rounded-2xl border border-border">
+        <img
+          src={blog.imageUrl || placeHolderImage}
+          alt={blog.title}
+          className="h-64 w-full object-cover sm:h-80 md:h-112"
+        />
+      </div>
     </section>
   );
 }

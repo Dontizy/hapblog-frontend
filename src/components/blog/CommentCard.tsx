@@ -21,7 +21,7 @@ export default function CommentCard({
   comment,
   onReply,
   isCommentPending = false,
-  isReplyPending = false,
+  // isReplyPending = false,
   isCommentError = false,
 }: CommentCardProps) {
   const [liked, setLiked] = useState(false);

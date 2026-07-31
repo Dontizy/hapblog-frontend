@@ -9,6 +9,8 @@ import { useBlog } from "../hooks/blog/useBlog";
 import { useComments } from "../hooks/blog/useComments";
 import BlogDetailsSkeleton from "./loading/BlogDetailsSkeleton";
 
+
+
 export default function BlogDetailsPage() {
   const { id } = useParams();
 

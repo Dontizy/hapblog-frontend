@@ -2,7 +2,18 @@
 @import "tw-animate-css";
 
 
+/* Add this to index.css so Tiptap's Placeholder extension actually renders text.
+   It targets the empty first paragraph node and shows a ::before pseudo-element. */
 @custom-variant dark (&:is(.dark *));
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
 
 @theme inline {
   --font-heading: var(--font-sans);
@@ -131,4 +142,5 @@
     font-family: var(--font-sans);
   }
 }
+
 

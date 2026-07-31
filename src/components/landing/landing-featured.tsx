@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-
-import { posts, getUser, formatDate } from "../../lib/mock-data";
+import placeHolderImage from '../../public/img/Hapblog-image.png'
+import { formatDate } from "../../lib/date-data";
+import { useBlogs } from "../../hooks/blog/UseBlogs";
 
 export function LandingFeatured() {
-  const featured = posts.slice(0, 3);
+  const {data} = useBlogs({limit:3})
+  const featured = data?.blogs.slice(0, 3);
+
 
   return (
     <section className="border-b border-border">
@@ -30,39 +33,38 @@ export function LandingFeatured() {
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {featured.map((post) => {
-            const author = getUser(post.authorId);
+          {featured?.map((blog) => {
 
             return (
               <Link
-                key={post.id}
-                to={`/post/${post.slug}`}
+                key={blog._id}
+                to={`/feeds/${blog._id}`}
                 className="group flex flex-col gap-4"
               >
-                <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border">
+                <div className="relative aspect-16/10 overflow-hidden rounded-xl border border-border">
                   <img
-                    src={post.coverImage || "/placeholder.svg"}
-                    alt={post.title}
+                    src={ blog.imageUrl || placeHolderImage }
+                    alt={blog.title}
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-xs font-medium uppercase tracking-wide text-accent">
+                  {/* <span className="text-xs font-medium uppercase tracking-wide text-accent">
                     {post.tags[0]}
-                  </span>
+                  </span> */}
 
                   <h3 className="text-balance font-serif text-lg font-semibold leading-snug tracking-tight">
-                    {post.title}
+                    {blog.title}
                   </h3>
 
                   <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                    {post.excerpt}
+                    {blog.content}
                   </p>
 
                   <p className="pt-1 text-sm text-muted-foreground">
-                    {author?.name} · {formatDate(post.publishedAt)}
+                    {blog?.author?.name} · {formatDate(blog.createdAt)}
                   </p>
                 </div>
               </Link>
