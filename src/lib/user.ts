@@ -2,30 +2,30 @@ export type UserRole = "user" | "admin";
 
 export interface User {
   _id: string;
-
   name: string;
+  username: string;
   email: string;
-
   role: UserRole;
-
   avatar?: string;
   bio?: string;
-
+  bookmarks: string[];
   followers: string[];
   following: string[];
-  bookmarks: string[];
+  suspendedUntil?: string;
   createdAt: string;
   updatedAt: string;
 }
 
+
 export interface Login {
-  email: string;
+  identifier: string;
   password: string;
 }
 
 export interface ProfileResponse {
   user: {
     id: string;
+    username:string;
     name: string;
     email: string;
     avatar: string;
@@ -82,6 +82,8 @@ export interface UpdateBioResponse {
 export interface PublicUserResponse {
   success: boolean;
   user: {
+    _id:string;
+    username:string;
     name: string;
     email: string;
     avatar: string;
@@ -97,3 +99,53 @@ export interface FollowUnFollowUserResponse {
   success: boolean;
   message: string;
 }
+
+
+export interface FollowersResponse{
+  success: boolean;
+  followers: [
+    {
+      _id: string;
+      username: string
+      name:string;
+      avatar: string;
+      bio: string;
+      isFollowing: boolean
+    }
+  ]
+}
+export interface FollowingResponse{
+  success: boolean;
+  following: [
+    {
+      _id: string;
+      username: string
+      name:string
+      avatar: string;
+      bio: string;
+      isFollowingBack: boolean
+    }
+  ]
+}
+
+export interface RegisterPayload {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+}
+
+
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  token: string;
+  user: {
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    role:UserRole;
+  };
+}
+

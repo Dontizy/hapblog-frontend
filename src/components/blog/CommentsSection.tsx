@@ -2,6 +2,7 @@ import type { Comment } from "../../lib/comment";
 
 import CommentCard from "./CommentCard";
 import CommentForm from "./CommentForm";
+// import { useAuthStore } from "../../store/useAuthStore";
 
 interface CommentsSectionProps {
   comments: Comment[];
@@ -9,17 +10,20 @@ interface CommentsSectionProps {
   isCommentPending?: boolean;
   isCommentError?: boolean;
   totalComments?: number;
+  blogId: string;
 }
 
 export default function CommentsSection({
   comments,
-  onCommentSubmit,
   isCommentPending = false,
   isCommentError = false,
-  isReplyPending = false,
   totalComments,
+  blogId
 }: CommentsSectionProps) {
   // const createCommentMutation = useCreateComment(blogId);
+
+  // const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   return (
     <section className="mt-16">
       <div className="mb-8 flex items-center justify-between">
@@ -27,8 +31,7 @@ export default function CommentsSection({
       </div>
 
       <CommentForm
-        onSubmit={onCommentSubmit}
-        isCommentPending={isCommentPending}
+        blogId={blogId}
       />
 
       <div className="mt-10 space-y-6">
@@ -47,7 +50,7 @@ export default function CommentsSection({
               comment={comment}
               isCommentPending={isCommentPending}
               isCommentError={isCommentError}
-              isReplyPending={isReplyPending}
+
             />
           ))
         )}

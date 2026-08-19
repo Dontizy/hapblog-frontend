@@ -6,15 +6,8 @@ import TiptapEditor from "./editor/TiptapEditor";
 import { useCreateBlog } from "../hooks/blog/useCreateBlog";
 import { getErrorMessage } from "../lib/getErrorMessage";
 import { Spinner } from "./loading/Spinner";
-// TODO: replace with the real category list from your backend once available.
-// const CATEGORIES = [
-//   "Technology",
-//   "Career",
-//   "Lifestyle",
-//   "Health",
-//   "Business",
-//   "Culture",
-// ];
+import { toast } from "sonner";
+import { useGetCategories } from "../hooks/category/useCategory";
 
 export default function CreatePostPage() {
   const navigate = useNavigate();
@@ -22,12 +15,18 @@ export default function CreatePostPage() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  // const [category, setCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState<File | null>(null);
+  const [category, setCategory] = useState<string>("");
+  const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { mutate, isPending, isError, error } = useCreateBlog();
+  // Fetch dynamic categories list
+  const { data: categoryList, isPending: categoryPending } = useGetCategories();
 
+  // Track which status button was clicked for loading spinners
+  const [activeStatus, setActiveStatus] = useState<"draft" | "published" | null>(null);
+
+  const { mutate, isPending, isError, error } = useCreateBlog();
+   
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
@@ -43,11 +42,12 @@ export default function CreatePostPage() {
       return;
     }
 
-    setImageUrl(file);
+    setImage(file);
     setImagePreview(URL.createObjectURL(file));
   };
+
   const clearImage = () => {
-    setImageUrl(null);
+    setImage(null);
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -60,23 +60,54 @@ export default function CreatePostPage() {
     };
   }, [imagePreview]);
 
+  // General validation for publishing (requires all fields)
   const isValid =
-    title.trim().length > 0 && content.trim().length > 0 //&& category.length > 0;
+    title.trim() !== "" && content.trim() !== "" && category !== "";
 
-  const handlePublish = () => {
-    if (!isValid) return;
+  // Draft validation (allows saving as long as there is a title)
+  const isValidDraft = title.trim() !== "";
+
+  // Accept targetStatus directly as an argument to avoid React stale closure state bugs
+  const reDirectTo = (
+    blog: { _id: string },
+    targetStatus: "draft" | "published"
+  ): void => {
+    if (targetStatus === "published") {
+      // Navigate to the view page of the newly published post
+      navigate(`/feed/${blog._id}`);
+    } else {
+      // Navigate back to the general feeds list after saving a draft
+      navigate("/feeds");
+    }
+  };
+
+  const handleSubmit = (status: "draft" | "published") => {
+    if (status === "published" && !isValid) return;
+    if (status === "draft" && !isValidDraft) return;
+
+    setActiveStatus(status);
 
     mutate(
       {
         title,
         content,
-        imageUrl,
+        image,
+        category: category || undefined,
+        status,
       },
       {
         onSuccess: ({ blog }) => {
-          navigate(`/feed/${blog._id}`);
+          reDirectTo(blog, status);
+          toast.success(
+            status === "published"
+              ? "Post published"
+              : "Post saved to draft"
+          );
         },
-      },
+        onSettled: () => {
+          setActiveStatus(null);
+        },
+      }
     );
   };
 
@@ -87,21 +118,43 @@ export default function CreatePostPage() {
           <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
             Write a new post
           </h1>
-          <Button onClick={handlePublish} disabled={!isValid || isPending}>
-            {isPending ? (
-              <>
-                <Spinner />
-                Publishing...
-              </>
-            ) : (
-              "Publish"
-            )}
-          </Button>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => handleSubmit("draft")}
+              disabled={!isValidDraft || isPending}
+            >
+              {isPending && activeStatus === "draft" ? (
+                <>
+                  <Spinner />
+                  Saving...
+                </>
+              ) : (
+                "Save Draft"
+              )}
+            </Button>
+
+            <Button
+              onClick={() => handleSubmit("published")}
+              disabled={!isValid || isPending}
+            >
+              {isPending && activeStatus === "published" ? (
+                <>
+                  <Spinner />
+                  Publishing...
+                </>
+              ) : (
+                "Publish"
+              )}
+            </Button>
+          </div>
         </div>
 
         {isError && (
           <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {getErrorMessage(error, "Couldn't publish your post. Try again.")}
+            {getErrorMessage(error, "Couldn't save your post. Try again.")}
           </div>
         )}
 
@@ -110,26 +163,27 @@ export default function CreatePostPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Write post title..."
-          className="mt-8 w-full border rounded-md pl-1 bg-transparent font-serif text-3xl font-semibold tracking-tight text-foreground placeholder:text-muted-foreground focus:outline-none"
+          className="mt-8 w-full rounded-md border bg-transparent pl-1 font-serif text-3xl font-semibold tracking-tight text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
 
-        {/* Category */}
-        {/* <div className="mt-4">
+        {/* Dynamic Category Selector */}
+        <div className="mt-4">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            disabled={categoryPending}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
           >
             <option value="" disabled>
-              Choose a category
+              {categoryPending ? "Loading categories..." : "Choose a category"}
             </option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            {categoryList?.categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
               </option>
             ))}
           </select>
-        </div> */}
+        </div>
 
         {/* Cover image */}
         <div className="mt-6">

@@ -6,61 +6,102 @@ interface BlogContentProps {
 
 export default function BlogContent({ blog }: BlogContentProps) {
   return (
-    <article className="mt-10">
-      <div
-        className="
-          prose
-          prose-neutral
-          dark:prose-invert
-          max-w-none
-          prose-headings:font-serif
-          prose-headings:font-semibold
-          prose-headings:tracking-tight
-          prose-h1:text-3xl
-          prose-h2:text-2xl
-          prose-h3:text-xl
-          prose-p:text-[1.0625rem]
-          prose-p:leading-8
-          prose-p:text-foreground/90
-          prose-a:text-foreground
-          prose-a:underline
-          prose-a:decoration-accent
-          prose-a:decoration-2
-          prose-a:underline-offset-4
-          prose-img:rounded-2xl
-          prose-img:border
-          prose-img:border-border
-          prose-blockquote:border-l-2
-          prose-blockquote:border-accent
-          prose-blockquote:font-serif
-          prose-blockquote:text-xl
-          prose-blockquote:font-normal
-          prose-blockquote:not-italic
-          prose-blockquote:text-foreground
-          prose-code:rounded
-          prose-code:bg-muted
-          prose-code:px-1.5
-          prose-code:py-0.5
-          prose-code:text-[0.9em]
-          prose-code:before:content-none
-          prose-code:after:content-none
-          prose-pre:rounded-2xl
-          prose-pre:border
-          prose-pre:border-border
-          prose-pre:bg-muted
-          first:prose-p:first-letter:float-left
-          first:prose-p:first-letter:mr-2
-          first:prose-p:first-letter:font-serif
-          first:prose-p:first-letter:text-6xl
-          first:prose-p:first-letter:font-semibold
-          first:prose-p:first-letter:leading-[0.8]
-          first:prose-p:first-letter:text-foreground
-        "
-          dangerouslySetInnerHTML={{
-            __html: blog.content,
-          }}
-        />
-      
-    </article>
+<article className="mt-8">
+  <div
+    className="
+      max-w-none
+      font-serif
+
+      /* Paragraphs */
+      [&_p]:mb-5
+      [&_p]:text-[1.0625rem]
+      [&_p]:leading-relaxed
+      [&_p]:text-[#242424]/90
+      dark:[&_p]:text-[#E6E6E6]/90
+
+      /* Headings */
+      [&_h1]:mt-10
+      [&_h1]:mb-4
+      [&_h1]:font-serif
+      [&_h1]:text-3xl
+      [&_h1]:font-bold
+      [&_h1]:tracking-tight
+      [&_h1]:text-[#242424]
+      dark:[&_h1]:text-[#F2F2F2]
+
+      [&_h2]:mt-10
+      [&_h2]:mb-4
+      [&_h2]:font-serif
+      [&_h2]:text-2xl
+      [&_h2]:font-bold
+      [&_h2]:tracking-tight
+      [&_h2]:text-[#242424]
+      dark:[&_h2]:text-[#F2F2F2]
+
+      [&_h3]:mt-8
+      [&_h3]:mb-3
+      [&_h3]:font-serif
+      [&_h3]:text-xl
+      [&_h3]:font-bold
+      [&_h3]:tracking-tight
+      [&_h3]:text-[#242424]
+      dark:[&_h3]:text-[#F2F2F2]
+
+      /* Lists */
+      [&_ul]:my-5
+      [&_ol]:my-5
+      [&_li]:my-1
+
+      /* Strong */
+      [&_strong]:font-semibold
+      [&_strong]:text-[#242424]
+      dark:[&_strong]:text-white
+
+      /* Links */
+      [&_a]:text-[#242424]
+      dark:[&_a]:text-[#E6E6E6]
+      [&_a]:underline
+      [&_a]:underline-offset-4
+
+      /* Images */
+      [&_img]:my-8
+      [&_img]:rounded-2xl
+      [&_img]:border
+      [&_img]:border-black/5
+      dark:[&_img]:border-white/10
+
+      /* Blockquotes */
+      [&_blockquote]:my-8
+      [&_blockquote]:border-l-2
+      [&_blockquote]:border-[#242424]
+      dark:[&_blockquote]:border-[#E6E6E6]
+      [&_blockquote]:pl-6
+      [&_blockquote]:font-serif
+      [&_blockquote]:text-lg
+      [&_blockquote]:italic
+      [&_blockquote]:text-[#242424]/80
+      dark:[&_blockquote]:text-[#E6E6E6]/80
+
+      /* Inline code */
+      [&_code]:rounded-md
+      [&_code]:bg-muted/80
+      [&_code]:px-1.5
+      [&_code]:py-0.5
+      [&_code]:font-mono
+      [&_code]:text-[0.875em]
+
+      /* Code blocks */
+      [&_pre]:my-8
+      [&_pre]:rounded-xl
+      [&_pre]:border
+      [&_pre]:border-border/80
+      [&_pre]:bg-muted/60
+      [&_pre]:p-4
+    "
+    dangerouslySetInnerHTML={{
+      __html: blog.content,
+    }}
+  />
+</article>
   );
 }

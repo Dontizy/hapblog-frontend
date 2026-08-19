@@ -1,4 +1,5 @@
-import { Link, Search, TrendingUp, SearchX } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, TrendingUp, SearchX } from "lucide-react";
 // import type { Blog } from "../lib/blog";
 import { Input } from "../components/ui/input";
 import { PostCard } from "../components/PostCard";
@@ -7,7 +8,6 @@ import { FeedSkeleton } from "./loading/FeedSkeleton";
 import ErrorState from "./ErrorState";
 import { Button } from "./ui/button";
 import { useState, useRef } from "react";
-
 
 export default function FeedPage() {
   const [page, setPage] = useState(1);
@@ -40,7 +40,7 @@ export default function FeedPage() {
     setPage((p) => p + 1);
     feedRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  console.log(data);
+  const blogs = data?.blogs ?? [];
 
   return (
     <main className="min-h-screen bg-background">
@@ -70,7 +70,7 @@ export default function FeedPage() {
         <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
           {/* Posts */}
           <section className="space-y-4">
-            {data?.blogs.length ? (
+            {blogs.length ? (
               data.blogs.map((blog) => <PostCard key={blog._id} blog={blog} />)
             ) : (
               <div className="flex min-h-[55vh] flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/50 px-6 py-12 text-center shadow-sm sm:px-10 sm:py-16">
@@ -171,29 +171,29 @@ export default function FeedPage() {
         </div>
       </div>
 
-       <div className=" mb-6 flex items-center justify-center gap-6">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 1}
-              onClick={handlePrev}
-            >
-              Previous
-            </Button>
+      <div className="mb-6 flex items-center justify-center gap-6">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page === 1}
+          onClick={handlePrev}
+        >
+          Previous
+        </Button>
 
-            <span className="text-sm font-medium text-muted-foreground">
-              Page {data?.currentPage} of {data?.totalPages}
-            </span>
+        <span className="text-sm font-medium text-muted-foreground">
+          Page {data?.currentPage} of {data?.totalPages}
+        </span>
 
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === data?.totalPages}
-              onClick={handleNext}
-            >
-              Next
-            </Button>
-          </div>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page === data?.totalPages}
+          onClick={handleNext}
+        >
+          Next
+        </Button>
+      </div>
     </main>
   );
 }

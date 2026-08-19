@@ -1,127 +1,273 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { X, Settings, Mail, ShieldCheck, FileText, Users, UserPlus, Bookmark } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  X,
+  Mail,
+  Settings,
+  Edit3,
+  FileText,
+  Users,
+  UserCheck,
+} from "lucide-react";
+
 import { useUserProfile } from "../../hooks/user/useUserProfile";
+import { Button } from "../ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-export default function UserProfile() {
-  const { data, isError, isPending } = useUserProfile();
+import FollowListModal from "./FollowListModal";
+import UserPostsGrid from "./UserPostsGrid";
+import { Spinner } from "../loading/Spinner";
+import { useGetUserBlogPost } from "../../hooks/user/useUserBlog";
+
+type ListTab = "followers" | "following";
+
+const stats = (blogsCount: number, followersCount: number, followingCount: number) => [
+  {
+    label: "Posts",
+    value: blogsCount,
+    icon: FileText,
+    tab: null,
+  },
+  {
+    label: "Followers",
+    value: followersCount,
+    icon: Users,
+    tab: "followers" as const,
+  },
+  {
+    label: "Following",
+    value: followingCount,
+    icon: UserCheck,
+    tab: "following" as const,
+  },
+];
+
+export default function ProfilePage() {
+  const navigate = useNavigate();
+  const { data: profileData, isPending, isError } = useUserProfile();
+  const {data:postsData} = useGetUserBlogPost()
+
   const [isImageOpen, setIsImageOpen] = useState(false);
+  const [activeListTab, setActiveListTab] = useState<ListTab | null>(null);
 
+  const postsGridRef = useRef<HTMLDivElement>(null);
+
+  /*
+   * Close overlays on Escape key press.
+   */
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setIsImageOpen(false);
+      setActiveListTab(null);
+    };
+
+    if (isImageOpen || activeListTab) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isImageOpen, activeListTab]);
+
+  /*
+   * Loading state.
+   */
   if (isPending) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Loading profile…</p>
+      <div className="flex min-h-[70vh] items-center justify-center bg-background">
+        <div className="flex animate-pulse items-center gap-1 text-sm text-muted-foreground">
+          Profile
+          <Spinner />
+        </div>
       </div>
     );
   }
 
-  if (isError || !data) {
+  /*
+   * Error state.
+   */
+  if (isError || !profileData?.user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3 bg-background px-4">
         <p className="text-sm text-muted-foreground">
-          Couldn't load this profile. Try refreshing the page.
+          Couldn't load your profile details.
         </p>
+        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
       </div>
     );
   }
 
-  const { user } = data;
+  const { user } = profileData;
 
-  const stats = [
-    { label: "Posts", value: user.blogsCount, icon: FileText },
-    { label: "Followers", value: user.followersCount, icon: Users },
-    { label: "Following", value: user.followingCount, icon: UserPlus },
-    { label: "Bookmarks", value: user.bookmarksCount, icon: Bookmark },
-  ];
+  const postsCount =
+  postsData?.pages[0]?.data.pagination.totalPosts ?? 0;
+  const followersCount = user.followersCount ?? 0;
+  const followingCount = user.followingCount ?? 0;
+
+  /*
+   * Scroll smoothly down to the posts grid section.
+   */
+  const handlePostsClick = () => {
+    postsGridRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-2">
-      <div className="mx-auto w-full max-w-lg">
-        {/* Settings entry point */}
-        <div className="mb-6 flex justify-end">
-         <Link
-  to="/profile/settings"
-  aria-label="Settings"
-  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:text-primary active:scale-[0.98]"
->
-  <Settings className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
-  <span>Settings</span>
-</Link>
-        </div>
+    <div className="min-h-screen bg-background pb-16">
+      {/* Header Banner */}
+      <div className="h-32 w-full border-b border-border/40 bg-linear-to-r from-accent/20 via-primary/10 to-transparent" />
 
-        {/* Identity */}
-        <div className="flex flex-col items-center text-center">
+      <div className="mx-auto w-full max-w-lg px-4">
+        {/* Profile Identity */}
+        <div className="-mt-14 flex flex-col items-center text-center sm:-mt-16">
+          {/* Avatar Button */}
           <button
             type="button"
             onClick={() => setIsImageOpen(true)}
-            className="rounded-full transition-transform active:scale-95"
-            aria-label="View profile photo"
+            className="group relative rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Enlarge profile photo"
           >
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="h-24 w-24 rounded-full object-cover ring-1 ring-border cursor-pointer"
-            />
+            <Avatar className="size-24 rounded-full border-4 border-background shadow-md ring-1 ring-border/80 transition-transform duration-200 group-hover:scale-105 group-active:scale-95 sm:size-28">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="text-xl font-medium">
+                {user.name?.[0]?.toUpperCase() ?? "U"}
+              </AvatarFallback>
+            </Avatar>
           </button>
 
-          <div className="mt-5 flex items-center gap-2">
-            <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight text-foreground">
-              {user.name}
-            </h1>
-            {user.role === "admin" && (
-              <span className="flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
-                <ShieldCheck className="h-3 w-3" />
-                Admin
-              </span>
-            )}
-          </div>
+          {/* Name */}
+          <h1 className="mt-4 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            {user.name}
+          </h1>
 
-          <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Mail className="h-3.5 w-3.5" />
-            {user.email}
-          </div>
+          {/* Username */}
+          {user.username && (
+            <p className="mt-1 text-sm font-medium text-muted-foreground">
+              @{user.username}
+            </p>
+          )}
 
-          <p className="mt-4 text-pretty text-sm leading-relaxed text-muted-foreground">
-            {user.bio}
-          </p>
+          {/* Email */}
+          {user.email && (
+            <a
+              href={`mailto:${user.email}`}
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-secondary/50 px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              <Mail className="size-3" />
+              {user.email}
+            </a>
+          )}
+
+          {/* Bio */}
+          {user.bio && (
+            <p className="mt-3.5 max-w-md text-pretty text-sm leading-relaxed text-muted-foreground">
+              {user.bio}
+            </p>
+          )}
+
+          {/* Profile Actions */}
+          <div className="mt-5 flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/profile/settings")}
+              className="rounded-full px-4 text-xs"
+            >
+              <Edit3 className="mr-1.5 size-3.5" />
+              Edit Profile
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/profile/settings")}
+              className="size-8 rounded-full text-muted-foreground hover:text-foreground"
+              aria-label="Settings"
+            >
+              <Settings className="size-4" />
+            </Button>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="mt-10 grid grid-cols-4 divide-x divide-border rounded-xl border border-border bg-card">
-          {stats.map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center gap-1.5 py-4">
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-              <span className="font-serif text-lg font-semibold text-foreground">
-                {stat.value}
-              </span>
-              <span className="text-xs text-muted-foreground">{stat.label}</span>
-            </div>
-          ))}
+        {/* Stats Grid */}
+        <div className="mt-8 grid grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card/60 shadow-xs">
+          {stats(postsCount, followersCount, followingCount).map((stat) => {
+            const Icon = stat.icon;
+
+            const handleClick = () => {
+              if (stat.tab) {
+                setActiveListTab(stat.tab);
+                return;
+              }
+              handlePostsClick();
+            };
+
+            return (
+              <button
+                type="button"
+                key={stat.label}
+                onClick={handleClick}
+                className="flex cursor-pointer flex-col items-center justify-center gap-1 p-4 text-foreground transition-colors first:rounded-l-2xl last:rounded-r-2xl hover:bg-secondary/80"
+              >
+                <Icon className="size-4 text-muted-foreground/70" />
+                <span className="font-serif text-lg font-bold text-foreground">
+                  {stat.value}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {stat.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* User Posts Section with Infinite Scroll */}
+        <div ref={postsGridRef} className="mt-8 scroll-mt-20">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Your Posts
+          </h2>
+
+          <UserPostsGrid />
         </div>
       </div>
 
-      {/* Expanded profile photo overlay */}
+      {/* Avatar Lightbox */}
       {isImageOpen && (
         <div
           onClick={() => setIsImageOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/80 p-4 backdrop-blur-xs fade-in duration-200"
         >
           <button
             type="button"
             onClick={() => setIsImageOpen(false)}
-            aria-label="Close"
-            className="absolute right-4 top-4 rounded-full p-2 text-white/80 hover:text-white transition-colors"
+            aria-label="Close profile photo"
+            className="absolute right-4 top-4 rounded-full bg-background/20 p-2 text-white transition-colors hover:bg-background/40"
           >
-            <X className="h-6 w-6" />
+            <X className="size-6" />
           </button>
 
           <img
             src={user.avatar}
             alt={user.name}
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-[80vh] max-w-[90vw] rounded-2xl object-contain animate-in zoom-in-95 duration-200"
+            onClick={(event) => event.stopPropagation()}
+            className="max-h-[80vh] max-w-[90vw] animate-in rounded-2xl object-contain shadow-2xl zoom-in-95 duration-200"
           />
         </div>
+      )}
+
+      {/* Followers / Following Modal Overlay */}
+      {activeListTab && (
+        <FollowListModal
+          username={user.username}
+          initialTab={activeListTab}
+          onClose={() => setActiveListTab(null)}
+        />
       )}
     </div>
   );

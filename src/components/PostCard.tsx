@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
-import { Bookmark, MessageCircle } from "lucide-react";
-import { useMemo, useState } from "react";
+import { MessageCircle } from "lucide-react";
 
-import placeHolderImage from "../public/img/Hapblog-image.png";
+import placeHolderImage from "./img/Hapblog-image.png";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import type { Blog } from "../lib/blog";
-import { cn } from "../lib/utils";
-import LikeButton from "./blog/LikeButton";
+import LikeButton from "./likes/LikeButton";
+import BookmarkButton from "./likes/BookMarkButton";
 import { useAuthStore } from "../store/useAuthStore";
 
 interface PostCardProps {
@@ -15,11 +14,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ blog }: PostCardProps) {
-  const [bookmarked, setBookmarked] = useState(false);
-  const isAuthenticated = useAuthStore((state)=>state.isAuthenticated)
-  const readingMinutes = useMemo(() => {
-    return Math.max(1, Math.ceil(blog.content.split(/\s+/).length / 200));
-  }, [blog.content]);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const formatDate = (date: string) =>
     new Date(date).toLocaleDateString("en-US", {
@@ -39,7 +34,7 @@ export function PostCard({ blog }: PostCardProps) {
           </Avatar>
 
           <Link
-            to={`/profile/${blog.author._id}`}
+            to={`/author/${blog.author.username}/profile`}
             className="font-medium hover:underline"
           >
             {blog.author.name}
@@ -58,25 +53,30 @@ export function PostCard({ blog }: PostCardProps) {
             {blog.title}
           </h2>
 
-          <div
-            className="line-clamp-2 text-pretty leading-relaxed text-muted-foreground"
-            dangerouslySetInnerHTML={{
-              __html: blog.content,
-            }}
-          />
+          <p className="line-clamp-2 text-pretty leading-relaxed text-muted-foreground">
+            {blog.content
+              .replace(/<[^>]*>/g, " ")
+              .replace(/\s+/g, " ")
+              .trim()}
+          </p>
         </Link>
 
         {/* Footer */}
         <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <Badge variant="secondary" className="rounded-full font-normal">
-            Blog
+            {blog.category}
           </Badge>
 
-          <span>{readingMinutes} min read</span>
+          <span>{blog.readingTime}</span>
 
           <div className="ml-auto flex items-center gap-1">
             {/* Like */}
-            <LikeButton blogId={blog._id} isLiked={blog.isLiked} likesCount={blog.likesCount} isAuthenticated={isAuthenticated} />
+            <LikeButton
+              blogId={blog._id}
+              isLiked={blog.isLiked}
+              likesCount={blog.likesCount}
+              isAuthenticated={isAuthenticated}
+            />
 
             {/* Comments */}
             <span className="inline-flex items-center gap-1 px-2 py-1">
@@ -85,15 +85,11 @@ export function PostCard({ blog }: PostCardProps) {
             </span>
 
             {/* Bookmark */}
-            <button
-              type="button"
-              onClick={() => setBookmarked((prev) => !prev)}
-              className="inline-flex items-center rounded-md px-2 py-1 transition-colors hover:text-foreground"
-            >
-              <Bookmark
-                className={cn("size-4", bookmarked && "fill-foreground")}
-              />
-            </button>
+            <BookmarkButton
+              isAuthenticated={isAuthenticated}
+              blogId={blog._id}
+              isBookmarked={blog.isBookmarked}
+            />
           </div>
         </div>
       </div>

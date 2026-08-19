@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-import { buttonVariants } from "../ui/button";
+import { buttonVariants } from "../ui/button-variants";
 import { cn } from "../../lib/utils";
 
 export function LandingCta() {

@@ -13,7 +13,7 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const { mutate, isPending, isError, error } = useLoginUser();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const login = useAuthStore((state) => state.login);
@@ -21,7 +21,7 @@ export default function LoginForm() {
   const handleLoginUser = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     mutate(
-      { email, password },
+      { identifier, password },
       {
         onSuccess: (data) => {
           login(data.token);
@@ -35,15 +35,15 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleLoginUser} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">Email / Username </Label>
 
         <Input
           id="email"
-          type="email"
+          type="text"
           autoComplete="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          placeholder="email / username"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
         />
       </div>
       <div className="space-y-2">

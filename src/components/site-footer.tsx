@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import  Logo  from './Logo'
+import { Logo}  from './Logo'
 
 export function SiteFooter() {
   const groups = [
@@ -59,7 +59,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border">
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6">
-          © {new Date().getFullYear()} Inkwell. All rights reserved.
+          © {new Date().getFullYear()} Hapblog. All rights reserved.
         </div>
       </div>
     </footer>

@@ -2,28 +2,41 @@ import { useState } from "react";
 
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { useCreateReply } from "../../hooks/comment/useComment";
+import { Spinner } from "../loading/Spinner";
+
 
 interface ReplyFormProps {
-  isPending?: boolean;
-  onSubmit: (body: string) => void;
+  commentId: string;
+  blogId: string;
   onCancel: () => void;
 }
 
-export default function ReplyForm({
-  onSubmit,
-  onCancel,
-  isPending = false,
-}: ReplyFormProps) {
+export default function ReplyForm({ commentId, blogId, onCancel }: ReplyFormProps) {
   const [body, setBody] = useState("");
+  const { mutate, isPending } = useCreateReply();
+
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     if (!body.trim()) return;
 
-    onSubmit(body);
+    mutate(
+      {
+         blogId,
+        commentId,
+        reply: {
+          body,
+        },
+      },
+      {
+        onSuccess: () => {
 
-    setBody("");
+          setBody("");
+          onCancel();
+        },
+      },
+    );
   }
 
   return (
@@ -39,19 +52,12 @@ export default function ReplyForm({
       />
 
       <div className="mt-4 flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
 
-        <Button
-          type="submit"
-          disabled={isPending}
-        >
-          {isPending ? "Replying..." : "Reply"}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? <><Spinner />Replying...</> : "Reply"}
         </Button>
       </div>
     </form>

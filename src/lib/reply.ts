@@ -1,27 +1,53 @@
-import type { User } from "./user";
-import type { Comment } from "./comment";
+import type { Author } from "./Author";
 
 export interface Reply {
   _id: string;
-
-  body: string;
-
-  author: User;
-
-  comment: string | Comment;
-
+  author: Author;
+  comment: string;
   likes: string[];
-
-  likesCount: number;
-
+  body: string;
   createdAt: string;
   updatedAt: string;
+  likesCount: number;
+  isLiked: boolean;
+  id: string;
 }
 
-export interface ReplyDto {
+export interface ReplyResponse {
+  success: boolean;
+  replies: Reply[];
+  totalReplies: number;
+  currentPage: number;
+  totalPages: number;
+}
+export interface CreateReply {
   body: string;
 }
+export interface EditReplyResponse{
+  success: boolean;
+  message: string;
+  reply: Reply;
+}
 
-// export interface UpdateReplyDto {
-//   body: string;
-// }
+export interface CreatedReply {
+  _id: string;
+  author: string;
+  comment: string;
+  likes: string[];
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+  likesCount: number;
+  id: string;
+}
+
+export interface createdReplyResponse {
+  success: boolean;
+  message: string;
+  reply: CreatedReply;
+}
+
+export interface LikeReplyResponse {
+  success: boolean;
+  message: string;
+}

@@ -6,7 +6,7 @@ import AuthorCard from "./blog/AuthorCard";
 import CommentsSection from "./blog/CommentsSection";
 import ErrorState from "./ErrorState";
 import { useBlog } from "../hooks/blog/useBlog";
-import { useComments } from "../hooks/blog/useComments";
+import { useComments } from "../hooks/comment/useComment";
 import BlogDetailsSkeleton from "./loading/BlogDetailsSkeleton";
 
 
@@ -32,8 +32,7 @@ export default function BlogDetailsPage() {
   const totalComments = commentData?.totalComments ?? 0;
   const comments = commentData?.comments ?? [];
 
-  console.log("comments", commentData);
-  console.log("blog", blog);
+
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -43,7 +42,7 @@ export default function BlogDetailsPage() {
       <AuthorCard author={blog.author} />
 
       <div className="mx-auto mt-10 max-w-4xl">
-        <CommentsSection totalComments={totalComments} comments={comments} isCommentError={isCommentError} isCommentPending={isCommentPending} />
+        <CommentsSection totalComments={totalComments} comments={comments} isCommentError={isCommentError} isCommentPending={isCommentPending} blogId={blog._id} />
       </div>
     </main>
   );

@@ -2,7 +2,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import Logo from "../Logo";
+import {Logo} from "../Logo";
 import { ThemeToggle } from "../theme-toggle";
 
 interface AuthShellProps {

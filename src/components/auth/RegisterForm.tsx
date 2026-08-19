@@ -1,22 +1,23 @@
 import { type FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { getErrorMessage } from "../../lib/getErrorMessage";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-// import { useAuth } from "../auth-provider";
+import { useRegister } from "../../hooks/user/useRegister";
 
 export function RegisterForm() {
-  // const { register } = useAuth();
   const navigate = useNavigate();
+  const { mutateAsync: register, isPending: loading } = useRegister();
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -24,7 +25,7 @@ export function RegisterForm() {
 
     setError("");
 
-    if (!name || !email || !password) {
+    if (!name || !username || !email || !password) {
       setError("Please fill in all fields.");
       return;
     }
@@ -34,14 +35,13 @@ export function RegisterForm() {
       return;
     }
 
-    setLoading(true);
-
     try {
-      // await register(name, email, password);
-      navigate("/feed");
-    } catch {
-      setError("Something went wrong. Please try again.");
-      setLoading(false);
+      await register({ name, username, email, password });
+      navigate("/feeds");
+    } catch (err) {
+      setError(
+        getErrorMessage(err, "Something went wrong. Please try again."),
+      );
     }
   }
 
@@ -57,6 +57,21 @@ export function RegisterForm() {
           placeholder="Jane Writer"
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="username">Username</Label>
+
+        <Input
+          id="username"
+          type="text"
+          autoComplete="username"
+          placeholder="janewriter"
+          value={username}
+          onChange={(e) =>
+            setUsername(e.target.value.trim().toLowerCase())
+          }
         />
       </div>
 
@@ -102,20 +117,10 @@ export function RegisterForm() {
         </div>
       </div>
 
-      {error && (
-        <p className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <Button
-        type="submit"
-        disabled={loading}
-        className="h-10 w-full"
-      >
-        {loading && (
-          <Loader2 className="mr-2 size-4 animate-spin" />
-        )}
+      <Button type="submit" disabled={loading} className="h-10 w-full">
+        {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
         Create account
       </Button>
 

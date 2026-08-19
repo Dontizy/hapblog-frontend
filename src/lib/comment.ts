@@ -1,6 +1,4 @@
-import type { User } from "./user";
-import type { Blog } from "./blog";
-import type { Reply } from "./reply";
+import type { Author } from "./Author";
 
 
 export interface Comment {
@@ -8,26 +6,48 @@ export interface Comment {
 
   body: string;
 
-  author: User;
+  author: Author;
 
-  blog: string | Blog;
-
+  blog: string;
   likes: string[];
 
   likedCommentCount: number;
 
   repliesCount: number;
-
-  replies?: Reply[];
-
+  isLiked: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CommentResponse {
-  success: boolean,
-  comments: Comment[],
-  totalComments:number,
-  currentPage: number,
-  totalPages: number
+  success: boolean;
+  comments: Comment[];
+  totalComments: number;
+  currentPage: number;
+  totalPages: number;
+}
+
+export interface LikeCommentResponse {
+  sucess: boolean;
+  message: string;
+}
+
+export interface CreateComment {
+  body: string;
+}
+
+export interface CreatedCommentResponse {
+  success: boolean;
+  message: string;
+  comment: {
+    _id: string;
+    author: string;
+    body: string;
+    likes: string[];
+    blog: string;
+    createdAt: string;
+    updatedAt: string;
+    likedCommentCount: number;
+    id: string;
+  };
 }

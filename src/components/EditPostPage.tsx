@@ -1,51 +1,64 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ImagePlus, X } from "lucide-react";
 import { Button } from "./ui/button";
 import TiptapEditor from "./editor/TiptapEditor";
-import { useBlog } from "../hooks/blog/useBlog";
-import { useUpdateBlog } from "../hooks/blog/useUpdateBlog";
-
-// TODO: replace with the real category list from your backend once available.
-const CATEGORIES = [
-  "Technology",
-  "Career",
-  "Lifestyle",
-  "Health",
-  "Business",
-  "Culture",
-];
+import { useBlog, useUpdateBlog } from "../hooks/blog/useBlog";
+import { useGetCategories } from "../hooks/category/useCategory";
+import { getErrorMessage } from "../lib/getErrorMessage";
+import EditPostSkeleton from "./loading/EditPostSkeleton";
+import { toast } from "sonner";
 
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { data, isLoading: isLoadingBlog, isError: isBlogError } = useBlog(id);
+  const { data, isPending: isLoadingBlog, isError: isBlogError } = useBlog(id!);
+  const { data: categoryList, isPending: categoryPending } = useGetCategories();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [hasHydratedForm, setHasHydratedForm] = useState(false);
 
-  // Pre-fill the form once the existing post loads. Guarded so it only runs
-  // once — otherwise every refetch would stomp on whatever the user is typing.
-  useEffect(() => {
-    if (!data || hasHydratedForm) return;
+  // Track which button is currently submitting ("draft" | "published")
+  const [activeStatus, setActiveStatus] = useState<"draft" | "published" | null>(null);
+
+  const { mutate, isPending: isEditPending, isError, error } = useUpdateBlog();
+
+  // Pre-fill once the existing post loads
+  const [hydratedFromBlog, setHydratedFromBlog] = useState<typeof data>(undefined);
+  if (data && data !== hydratedFromBlog) {
+    setHydratedFromBlog(data);
     setTitle(data.blog.title);
     setContent(data.blog.content);
-    setCategory(data.blog.category ?? "");
-    setImagePreview(data.blog.imageUrl ?? null);
-    setHasHydratedForm(true);
-  }, [data, hasHydratedForm]);
 
-  const { mutate, isPending } = useUpdateBlog();
+    // Safely extract category ID whether populated object or plain string
+    const existingCategoryId =
+      typeof data.blog.category === "object" && data.blog.category !== null
+        ? (data.blog.category as { _id: string })._id
+        : (data.blog.category as string) ?? "";
+
+    setCategory(existingCategoryId);
+    setImagePreview(data.blog.imageUrl ?? null);
+  }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please choose an image.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be smaller than 5MB.");
+      return;
+    }
+
     setImage(file);
     setImagePreview(URL.createObjectURL(file));
   };
@@ -56,26 +69,54 @@ export default function EditPostPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const isValid = title.trim().length > 0 && content.trim().length > 0 && category.length > 0;
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
-  const handleSave = () => {
-    if (!isValid || !id) return;
+  // Validation
+  const isValid = title.trim() !== "" && content.trim() !== "" && category !== "";
+  const isValidDraft = title.trim() !== "";
+
+  const handleSave = (status: "draft" | "published") => {
+    if (!id) return;
+    if (status === "published" && !isValid) return;
+    if (status === "draft" && !isValidDraft) return;
+
+    setActiveStatus(status);
+
     mutate(
-      { blogId: id, title, content, category, image },
       {
-        onSuccess: (res) => {
-          navigate(`/post/${res.blog._id}`);
+        id,
+        blog: {
+          title,
+          content,
+          category: category || undefined,
+          image,
+          status,
         },
       },
+      {
+        onSuccess: ({ blog }) => {
+          if (status === "published") {
+            navigate(`/feed/${blog._id}`);
+          } else {
+            navigate("/feeds");
+          }
+          toast.success(status === "published" ? "Post updated successfully" : "Post saved to draft!");
+        },
+        onSettled: () => {
+          setActiveStatus(null);
+        },
+      }
     );
   };
 
   if (isLoadingBlog) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Loading post…</p>
-      </div>
-    );
+    return <EditPostSkeleton />;
   }
 
   if (isBlogError || !data) {
@@ -95,32 +136,54 @@ export default function EditPostPage() {
           <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
             Edit post
           </h1>
-          <Button onClick={handleSave} disabled={!isValid || isPending}>
-            {isPending ? "Saving…" : "Save changes"}
-          </Button>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => handleSave("draft")}
+              disabled={!isValidDraft || isEditPending}
+            >
+              {isEditPending && activeStatus === "draft" ? "Saving..." : "Save Draft"}
+            </Button>
+
+            <Button
+              onClick={() => handleSave("published")}
+              disabled={!isValid || isEditPending}
+            >
+              {isEditPending && activeStatus === "published" ? "Publishing..." : "Publish Changes"}
+            </Button>
+          </div>
         </div>
+
+        {isError && (
+          <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {getErrorMessage(error, "Couldn't update your post. Try again.")}
+          </div>
+        )}
 
         {/* Title */}
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Post title"
-          className="mt-8 w-full border-none bg-transparent font-serif text-3xl font-semibold tracking-tight text-foreground placeholder:text-muted-foreground focus:outline-none"
+          placeholder="Write post title..."
+          className="mt-8 w-full border rounded-md pl-1 bg-transparent font-serif text-3xl font-semibold tracking-tight text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
 
-        {/* Category */}
+        {/* Dynamic Category Dropdown */}
         <div className="mt-4">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            disabled={categoryPending}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
           >
             <option value="" disabled>
-              Choose a category
+              {categoryPending ? "Loading categories..." : "Choose a category"}
             </option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            {categoryList?.categories.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name}
               </option>
             ))}
           </select>
@@ -130,7 +193,11 @@ export default function EditPostPage() {
         <div className="mt-6">
           {imagePreview ? (
             <div className="relative overflow-hidden rounded-2xl border border-border">
-              <img src={imagePreview} alt="Cover preview" className="h-64 w-full object-cover" />
+              <img
+                src={imagePreview}
+                alt="Cover preview"
+                className="h-64 w-full object-cover"
+              />
               <button
                 type="button"
                 onClick={clearImage}
@@ -161,7 +228,7 @@ export default function EditPostPage() {
 
         {/* Content */}
         <div className="mt-6">
-          {hasHydratedForm && <TiptapEditor content={content} onChange={setContent} />}
+          <TiptapEditor content={content} onChange={setContent} />
         </div>
       </div>
     </div>

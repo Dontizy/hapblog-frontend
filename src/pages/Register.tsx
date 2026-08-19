@@ -7,7 +7,7 @@ export default function Register() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Join Inkwell to share your ideas and follow writers you love."
+      subtitle="Join Hapblog to share your ideas and follow writers you love."
       footer={
         <>
           Already have an account?{" "}

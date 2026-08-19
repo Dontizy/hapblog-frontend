@@ -15,11 +15,11 @@ export const useUserProfile = () => {
   });
 };
 
-export const usePublicProfile =(id:string)=>{
+export const usePublicProfile =(username:string)=>{
  return useQuery({
-  queryKey:["public-profile", id],
-  queryFn:()=>getPublicUserProfile(id),
-  enabled:!!id,
+  queryKey:["public-profile", username],
+  queryFn:()=>getPublicUserProfile(username),
+  enabled:!!username,
  })
 }
 
@@ -28,8 +28,8 @@ export const useToggleFollowUser =()=>{
 
   return useMutation({
       mutationFn:toggleFollowUser,
-      onSuccess:(data, id)=>{
-        queryClient.invalidateQueries({queryKey:["public-profile", id]})
+      onSuccess:(data)=>{
+        queryClient.invalidateQueries({queryKey:["public-profile"]})
         queryClient.invalidateQueries({queryKey:["profile"]})
          toast.success(data.message);
       },

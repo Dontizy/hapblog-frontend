@@ -1,17 +1,15 @@
 import { useState } from "react";
-
+import {useCreateComment} from "../../hooks/comment/useComment";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { Spinner } from "../loading/Spinner";
 
 interface CommentFormProps {
-  onSubmit: (body: string) => void;
-  isCommentPending?: boolean;
+  blogId: string;
 }
 
-export default function CommentForm({
-  onSubmit,
-  isCommentPending = false,
-}: CommentFormProps) {
+export default function CommentForm({ blogId }: CommentFormProps) {
+  const { mutate: createComment, isPending: isCommentPending } = useCreateComment();
   const [body, setBody] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
@@ -19,7 +17,7 @@ export default function CommentForm({
 
     if (!body.trim()) return;
 
-    onSubmit(body);
+    createComment({ blogId, comment: { body } });
 
     setBody("");
   }
@@ -45,7 +43,7 @@ export default function CommentForm({
           type="submit"
           disabled={isCommentPending}
         >
-          {isCommentPending ? "Posting..." : "Post Comment"}
+          {isCommentPending ? <><Spinner/> Posting...</> : "Post Comment"}
         </Button>
       </div>
     </form>

@@ -57,7 +57,7 @@ export function LandingFeatures() {
           </h2>
 
           <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
-            Inkwell brings together the tools writers actually want, without the
+            Hapblog brings together the tools writers actually want, without the
             clutter of everything they don't.
           </p>
         </div>
