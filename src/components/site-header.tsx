@@ -5,6 +5,7 @@ import {
   Bookmark,
   LogOut,
   PenLine,
+  Search,
   Settings,
   FilePen,
   Shield,
@@ -48,6 +49,7 @@ interface NavIconLinkProps {
   icon: typeof Bell;
   badgeCount?: number;
   hiddenOnMobile?: boolean;
+  mobileOnly?: boolean;
 }
 
 // Reusable icon-button link — collapses the repeated buttonVariants/cn
@@ -58,6 +60,7 @@ function NavIconLink({
   icon: Icon,
   badgeCount,
   hiddenOnMobile,
+  mobileOnly,
 }: NavIconLinkProps) {
   return (
     <Link
@@ -69,6 +72,7 @@ function NavIconLink({
         buttonVariants({ variant: "ghost", size: "icon" }),
         "relative h-8 w-8 sm:h-9 sm:w-9",
         hiddenOnMobile && "hidden sm:inline-flex",
+        mobileOnly && "sm:hidden",
       )}
     >
       <Icon className="size-4" />
@@ -128,6 +132,15 @@ export function SiteHeader() {
 
         {/* Right Section: Actions, Icons & Profile Menu */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          {/* Explore, as a search icon, on small screens only — the text
+              nav link above is hidden below sm with nothing replacing it */}
+          <NavIconLink
+            to="/explore"
+            label="Explore"
+            icon={Search}
+            mobileOnly
+          />
+
           {isAuthenticated ? (
             <>
               <Link
@@ -149,8 +162,6 @@ export function SiteHeader() {
                 badgeCount={unreadNotifications}
               />
 
-
-
               <NavIconLink
                 to="/profile/settings"
                 label="Settings"
@@ -166,8 +177,6 @@ export function SiteHeader() {
                   hiddenOnMobile
                 />
               )}
-
-
 
               <ThemeToggle />
 

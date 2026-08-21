@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient, useQuery} from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getErrorMessage } from "../../lib/getErrorMessage";
-import { getBlogById, likeBlogPost, updateBlog } from "../../services/blogService";
+import { getBlogBySlug, likeBlogPost, updateBlog } from "../../services/blogService";
 import type { UpdateBlog } from "../../lib/blog";
 
 
-export const useBlog = (id: string) => {
+export const useBlog = (slug: string) => {
   return useQuery({
-    queryKey: ["blog", id],
-    queryFn: () => getBlogById(id),
-    enabled: !!id,
+    queryKey: ["blog", slug],
+    queryFn: () => getBlogBySlug(slug),
+    enabled: !!slug,
   });
 };
 
@@ -53,7 +53,7 @@ export const useUpdateBlog = ()=>{
       onSuccess:(_, variables)=>{
         queryClient.invalidateQueries({ queryKey:["blogs"]})
         queryClient.invalidateQueries({ queryKey:["blog", variables.id]})
-        
+
       },
       onError:(error)=>{
         toast.error(getErrorMessage(error, "Couldn't update post. Please try again"))

@@ -1,4 +1,5 @@
 export type UserRole = "user" | "admin";
+import type { Author } from "./Author";
 
 export interface User {
   _id: string;
@@ -148,4 +149,40 @@ export interface RegisterResponse {
     role:UserRole;
   };
 }
+
+export interface ForgotPassword {
+  identifier: string;
+}
+export interface ForgotPasswordResponse{
+   success:boolean;
+   message: string;
+}
+
+
+export interface ResetPassword {
+  token: string;
+  password: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+
+export interface SearchAuthorsResponse {
+  success: boolean;
+  authors: Author[];
+  currentPage: number;
+  totalPages: number;
+  totalAuthors: number;
+  limit: number;
+}
+
+export interface SearchAuthorsParams {
+  search: string;
+  page?: number;
+  limit?: number;
+}
+
 

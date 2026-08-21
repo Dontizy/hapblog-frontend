@@ -145,7 +145,7 @@ export default function DraftsListPage() {
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-                      {draft.category || "General"}
+                      {draft.category?.name}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="size-3" />
@@ -158,7 +158,7 @@ export default function DraftsListPage() {
                   </div>
 
                   <Link
-                    to={`/edit/${draft._id}`}
+                    to={`/update/${draft.slug}/post`}
                     className="block group-hover:text-primary transition-colors"
                   >
                     <h2 className="line-clamp-1 text-base font-semibold text-foreground">
@@ -176,7 +176,7 @@ export default function DraftsListPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(`/update/${draft._id}/post`)}
+                    onClick={() => navigate(`/update/${draft.slug}/post`)}
                     className="gap-1.5 rounded-full text-xs"
                   >
                     <FileEdit className="size-3.5" />

@@ -23,10 +23,12 @@ export default function CreatePostPage() {
   const { data: categoryList, isPending: categoryPending } = useGetCategories();
 
   // Track which status button was clicked for loading spinners
-  const [activeStatus, setActiveStatus] = useState<"draft" | "published" | null>(null);
+  const [activeStatus, setActiveStatus] = useState<
+    "draft" | "published" | null
+  >(null);
 
   const { mutate, isPending, isError, error } = useCreateBlog();
-   
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
@@ -64,17 +66,16 @@ export default function CreatePostPage() {
   const isValid =
     title.trim() !== "" && content.trim() !== "" && category !== "";
 
-  // Draft validation (allows saving as long as there is a title)
-  const isValidDraft = title.trim() !== "";
+  const isValidDraft = title.trim() !== "" && category !== "";
 
   // Accept targetStatus directly as an argument to avoid React stale closure state bugs
   const reDirectTo = (
-    blog: { _id: string },
-    targetStatus: "draft" | "published"
+    blog: { slug: string },
+    targetStatus: "draft" | "published",
   ): void => {
     if (targetStatus === "published") {
       // Navigate to the view page of the newly published post
-      navigate(`/feed/${blog._id}`);
+      navigate(`/feed/${blog.slug}`);
     } else {
       // Navigate back to the general feeds list after saving a draft
       navigate("/feeds");
@@ -92,22 +93,20 @@ export default function CreatePostPage() {
         title,
         content,
         image,
-        category: category || undefined,
+        category,
         status,
       },
       {
         onSuccess: ({ blog }) => {
           reDirectTo(blog, status);
           toast.success(
-            status === "published"
-              ? "Post published"
-              : "Post saved to draft"
+            status === "published" ? "Post published" : "Post saved to draft",
           );
         },
         onSettled: () => {
           setActiveStatus(null);
         },
-      }
+      },
     );
   };
 

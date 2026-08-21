@@ -116,7 +116,7 @@ export function LandingHero() {
                 1600,
                 "Politics",
                 1600,
-                "Other",
+                "Personal",
               ]}
               wrapper="span"
               speed={50}

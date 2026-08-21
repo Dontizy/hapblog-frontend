@@ -10,10 +10,10 @@ import EditPostSkeleton from "./loading/EditPostSkeleton";
 import { toast } from "sonner";
 
 export default function EditPostPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data, isPending: isLoadingBlog, isError: isBlogError } = useBlog(id!);
+  const { data, isPending: isLoadingBlog, isError: isBlogError } = useBlog(slug ?? "");
   const { data: categoryList, isPending: categoryPending } = useGetCategories();
 
   const [title, setTitle] = useState("");
@@ -23,24 +23,24 @@ export default function EditPostPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Track which button is currently submitting ("draft" | "published")
-  const [activeStatus, setActiveStatus] = useState<"draft" | "published" | null>(null);
+  const [activeStatus, setActiveStatus] = useState<
+    "draft" | "published" | null
+  >(null);
 
   const { mutate, isPending: isEditPending, isError, error } = useUpdateBlog();
 
   // Pre-fill once the existing post loads
-  const [hydratedFromBlog, setHydratedFromBlog] = useState<typeof data>(undefined);
+  const [hydratedFromBlog, setHydratedFromBlog] =
+    useState<typeof data>(undefined);
   if (data && data !== hydratedFromBlog) {
     setHydratedFromBlog(data);
     setTitle(data.blog.title);
     setContent(data.blog.content);
 
-    // Safely extract category ID whether populated object or plain string
     const existingCategoryId =
-      typeof data.blog.category === "object" && data.blog.category !== null
-        ? (data.blog.category as { _id: string })._id
-        : (data.blog.category as string) ?? "";
+  data.blog.category?._id ?? "";
 
-    setCategory(existingCategoryId);
+setCategory(existingCategoryId);
     setImagePreview(data.blog.imageUrl ?? null);
   }
 
@@ -78,42 +78,52 @@ export default function EditPostPage() {
   }, [imagePreview]);
 
   // Validation
-  const isValid = title.trim() !== "" && content.trim() !== "" && category !== "";
-  const isValidDraft = title.trim() !== "";
+  const isValid =
+    title.trim() !== "" && content.trim() !== "" && category !== "";
+  const isValidDraft = title.trim() !== "" && category !== "";
 
-  const handleSave = (status: "draft" | "published") => {
-    if (!id) return;
-    if (status === "published" && !isValid) return;
-    if (status === "draft" && !isValidDraft) return;
+const handleSave = (status: "draft" | "published") => {
+  if (!slug) return;
 
-    setActiveStatus(status);
+  if (status === "published" && !isValid) return;
+  if (status === "draft" && !isValidDraft) return;
 
-    mutate(
-      {
-        id,
-        blog: {
-          title,
-          content,
-          category: category || undefined,
-          image,
-          status,
-        },
+  if (!data) return;
+
+  setActiveStatus(status);
+
+  mutate(
+    {
+      id: data.blog._id,
+      blog: {
+        title,
+        content,
+        category: category || undefined,
+        image,
+        status,
       },
-      {
-        onSuccess: ({ blog }) => {
-          if (status === "published") {
-            navigate(`/feed/${blog._id}`);
-          } else {
-            navigate("/feeds");
-          }
-          toast.success(status === "published" ? "Post updated successfully" : "Post saved to draft!");
-        },
-        onSettled: () => {
-          setActiveStatus(null);
-        },
-      }
-    );
-  };
+    },
+    {
+      onSuccess: ({ blog }) => {
+        if (status === "published") {
+          navigate(`/feed/${blog.slug}`);
+        } else {
+          navigate("/feeds");
+        }
+
+        toast.success(
+          status === "published"
+            ? "Post updated successfully"
+            : "Post saved to draft!",
+        );
+      },
+
+      onSettled: () => {
+        setActiveStatus(null);
+      },
+    },
+  );
+};
 
   if (isLoadingBlog) {
     return <EditPostSkeleton />;
@@ -144,14 +154,18 @@ export default function EditPostPage() {
               onClick={() => handleSave("draft")}
               disabled={!isValidDraft || isEditPending}
             >
-              {isEditPending && activeStatus === "draft" ? "Saving..." : "Save Draft"}
+              {isEditPending && activeStatus === "draft"
+                ? "Saving..."
+                : "Save Draft"}
             </Button>
 
             <Button
               onClick={() => handleSave("published")}
               disabled={!isValid || isEditPending}
             >
-              {isEditPending && activeStatus === "published" ? "Publishing..." : "Publish Changes"}
+              {isEditPending && activeStatus === "published"
+                ? "Publishing..."
+                : "Publish Changes"}
             </Button>
           </div>
         </div>

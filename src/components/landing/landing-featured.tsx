@@ -62,7 +62,7 @@ export function LandingFeatured() {
 
                 <div className="space-y-1.5 sm:space-y-2">
                   <span className="text-[10px] font-medium uppercase tracking-wide text-accent sm:text-xs">
-                    {blog?.category}
+                    {blog.category?.name}
                   </span>
 
                   <h3 className="text-balance font-serif text-base font-semibold leading-snug tracking-tight sm:text-lg">

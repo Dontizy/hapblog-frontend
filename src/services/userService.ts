@@ -13,9 +13,15 @@ import type {
   FollowUnFollowUserResponse,
   FollowersResponse,
   FollowingResponse,
-  RegisterPayload, RegisterResponse
+  RegisterPayload,
+  RegisterResponse,
+  ForgotPassword,
+  ForgotPasswordResponse,
+  ResetPassword,
+  ResetPasswordResponse,
+  SearchAuthorsParams,
+  SearchAuthorsResponse
 } from "../lib/user";
-
 
 export const registerUser = async (
   payload: RegisterPayload,
@@ -95,7 +101,6 @@ export const getPublicFollowers = async (
   return res.data;
 };
 
-
 export const getMyFollowing = async (): Promise<FollowingResponse> => {
   const res = await api.get<FollowingResponse>("/user/auth/following");
   return res.data;
@@ -107,5 +112,28 @@ export const getPublicFollowing = async (
   const res = await api.get<FollowingResponse>(
     `/user/auth/${username}/following`,
   );
+  return res.data;
+};
+
+export const forgotPassword = async(data:ForgotPassword): Promise<ForgotPasswordResponse>=>{
+ const res = await api.post<ForgotPasswordResponse>("/user/auth/forgot-password", data)
+ return res.data
+}
+
+export const resetPassword = async (
+  data: ResetPassword
+): Promise<ResetPasswordResponse> => {
+  const res = await api.post<ResetPasswordResponse>(
+    `/user/auth/reset-password/${data.token}`,
+    {
+      password: data.password,
+    }
+  );
+
+  return res.data;
+};
+
+export const searchAuthors = async (params: SearchAuthorsParams): Promise<SearchAuthorsResponse> => {
+  const res = await api.get<SearchAuthorsResponse>("/user/authors/search", { params });
   return res.data;
 };

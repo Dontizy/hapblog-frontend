@@ -47,7 +47,7 @@ export default function AuthShell({
       </main>
 
       <footer className="px-4 py-6 text-center text-xs text-muted-foreground">
-        <Link to="/" className="hover:text-foreground transition-colors">
+        <Link to="/feeds" className="hover:text-foreground transition-colors">
           Back to home
         </Link>
       </footer>

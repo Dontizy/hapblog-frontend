@@ -1,5 +1,12 @@
 import type { Author } from "./Author";
-import type { blogCategory } from "./category";
+
+
+export interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
 
 export interface Blog {
   _id: string;
@@ -9,10 +16,11 @@ export interface Blog {
   imageUrl?: string;
   author: Author;
 
-  category: blogCategory;
+  category: Category | null;
   status: "draft" | "published";
   likes: string[];
   likesCount: number;
+  slug:string;
   commentsCount: number;
   isLiked: boolean;
   isBookmarked: boolean;
@@ -36,7 +44,7 @@ export interface BlogResponse {
 export interface CreateBlog {
   title: string;
   content: string;
-  category: blogCategory;
+  category: string;
   status: "draft" | "published";
   image?: File | null;
 }
@@ -52,6 +60,7 @@ export interface CreateBlogResponse {
     likes: string[];
     category: string;
     likesCount: number;
+    slug:string;
     isLiked: boolean;
     author: string;
     createdAt: string;
@@ -73,7 +82,7 @@ export interface UpdateBlog {
   title?: string;
   content?: string;
   status: "draft" | "published";
-  category?: blogCategory;
+  category?: string;
   image?: File | null;
 }
 
@@ -86,7 +95,8 @@ export interface UpdateBlogResponse {
     imageUrl?: string;
     likes: string[];
     author: string;
-    category: blogCategory;
+    category: Category | null;
+    slug:string;
     createdAt: string;
     updatedAt: string;
     likesCount: number;

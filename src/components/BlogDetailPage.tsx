@@ -12,14 +12,14 @@ import BlogDetailsSkeleton from "./loading/BlogDetailsSkeleton";
 
 
 export default function BlogDetailsPage() {
-  const { id } = useParams();
+  const { slug } = useParams<{slug:string}>();
 
-  const { data: blogData, isPending, isError, refetch } = useBlog(id!);
+  const { data: blogData, isPending, isError, refetch } = useBlog(slug ?? "");
   const {
     data: commentData,
    isPending: isCommentPending,
     isError: isCommentError,
-  } = useComments(id!);
+  } = useComments(blogData?.blog._id ?? "");
   const blog = blogData?.blog;
 
   if (isPending) return <BlogDetailsSkeleton />;

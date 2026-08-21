@@ -18,6 +18,9 @@ import EditPostPage from "../components/EditPostPage";
 import NotificationDetailPage from "../components/user/NotificationDetailPage";
 import AdminPage from "../components/admin/AdminPage";
 import DraftsListPage from "../components/blog/Draft";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
+import SearchAuthorsPage from "../components/user/SearchAuthorPage";
 
 
 // Layout for pages that include the SiteHeader
@@ -39,12 +42,16 @@ export default function AppRoutes() {
         {/* Auth routes without SiteHeader */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgotton-password" element={<ForgotPasswordPage/>} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage/>} />
+
 
         {/* All other routes wrapped in HeaderLayout */}
         <Route element={<HeaderLayout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" index element={<HomePage />} />
+
           <Route path="/feeds" element={<FeedPage />} />
-          <Route path="/feed/:id" element={<BlogDetailPage />} />
+          <Route path="/feed/:slug" element={<BlogDetailPage />} />
 
           <Route
             path="/profile"
@@ -59,6 +66,14 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute>
                 <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/explore"
+            element={
+              <ProtectedRoute>
+                <SearchAuthorsPage/>
               </ProtectedRoute>
             }
           />
@@ -95,7 +110,7 @@ export default function AppRoutes() {
             }
           />
           <Route
-            path="/update/:id/post"
+            path="/update/:slug/post"
             element={
               <ProtectedRoute>
                 <EditPostPage />
@@ -106,7 +121,7 @@ export default function AppRoutes() {
             path="/notification/:id/detail"
             element={
               <ProtectedRoute>
-                <NotificationDetailPage/>
+                <NotificationDetailPage />
               </ProtectedRoute>
             }
           />
@@ -114,7 +129,7 @@ export default function AppRoutes() {
             path="/admin/page"
             element={
               <ProtectedRoute>
-                <AdminPage/>
+                <AdminPage />
               </ProtectedRoute>
             }
           />
@@ -122,7 +137,7 @@ export default function AppRoutes() {
             path="/user/drafts"
             element={
               <ProtectedRoute>
-                <DraftsListPage/>
+                <DraftsListPage />
               </ProtectedRoute>
             }
           />

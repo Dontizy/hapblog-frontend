@@ -48,7 +48,7 @@ export function PostCard({ blog }: PostCardProps) {
         </div>
 
         {/* Blog */}
-        <Link to={`/feed/${blog._id}`} className="space-y-2">
+        <Link to={`/feed/${blog.slug}`} className="space-y-2">
           <h2 className="text-balance font-serif text-xl font-semibold leading-snug tracking-tight transition-colors group-hover:text-foreground sm:text-2xl">
             {blog.title}
           </h2>
@@ -64,7 +64,7 @@ export function PostCard({ blog }: PostCardProps) {
         {/* Footer */}
         <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <Badge variant="secondary" className="rounded-full font-normal">
-            {blog.category}
+            {blog.category?.name}
           </Badge>
 
           <span>{blog.readingTime}</span>
@@ -95,7 +95,7 @@ export function PostCard({ blog }: PostCardProps) {
       </div>
 
       {/* Cover Image */}
-      <Link to={`/feed/${blog._id}`} className="order-first sm:order-0">
+      <Link to={`/feed/${blog.slug}`} className="order-first sm:order-0">
         <div className="aspect-16/10 w-full overflow-hidden rounded-xl border border-border sm:h-32 sm:w-48">
           <img
             src={blog.imageUrl || placeHolderImage}

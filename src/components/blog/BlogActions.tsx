@@ -30,19 +30,13 @@ export default function BlogActions({ blog }: BlogActionsProps) {
 
   const user = data?.user;
 
-  /*
-   * Check whether the currently logged-in user
-   * is the author of this blog.
-   */
+  
   const isAuthor =
     isAuthenticated &&
     !!user &&
     user.id.toString() === blog.author._id.toString();
 
-  /*
-   * Admins can delete posts but cannot edit
-   * another user's post.
-   */
+
   const isAdmin =
     isAuthenticated &&
     user?.role === "admin";
