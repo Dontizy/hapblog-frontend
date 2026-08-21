@@ -55,7 +55,7 @@ export default function LoginForm() {
           <Label htmlFor="password">Password</Label>
 
           <Link
-            to="/forgot-password"
+            to="/forgotton-password"
             className="text-xs text-muted-foreground transition-colors hover:text-accent"
           >
             Forgot password?

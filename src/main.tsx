@@ -7,6 +7,7 @@ import { Toaster } from "./components/ui/Toaster";
 import App from "./App";
 import { ThemeProvider } from "./context/Theme-Provider";
 import "./styles/index.css";
+import ScrollTop from "./components/ScrollTop";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
+        <ScrollTop/>
           <App />
           <Toaster />
         </BrowserRouter>
