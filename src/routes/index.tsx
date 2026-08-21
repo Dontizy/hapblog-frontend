@@ -1,6 +1,5 @@
 import { Routes, Route, Outlet } from "react-router-dom";
 import FeedPage from "../components/FeedPage";
-import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/Login";
 import RegisterPage from "../pages/Register";
 import { SiteHeader } from "../components/site-header";
@@ -21,6 +20,7 @@ import DraftsListPage from "../components/blog/Draft";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import SearchAuthorsPage from "../components/user/SearchAuthorPage";
+import RootRedirect from "./RootRedirect"
 
 
 // Layout for pages that include the SiteHeader
@@ -48,7 +48,7 @@ export default function AppRoutes() {
 
         {/* All other routes wrapped in HeaderLayout */}
         <Route element={<HeaderLayout />}>
-          <Route path="/" index element={<HomePage />} />
+          <Route path="/" element={<RootRedirect />} />
 
           <Route path="/feeds" element={<FeedPage />} />
           <Route path="/feed/:slug" element={<BlogDetailPage />} />
