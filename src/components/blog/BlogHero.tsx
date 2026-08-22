@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 
@@ -11,35 +11,13 @@ interface BlogHeroProps {
 }
 
 export default function BlogHero({ blog }: BlogHeroProps) {
-  const [isImagePreviewOpen, setIsImagePreviewOpen] =
-    useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const imageSrc = blog.imageUrl || placeHolderImage;
 
-  // Close preview with Escape
-  useEffect(() => {
-    if (!isImagePreviewOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsImagePreviewOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    // Prevent the page from scrolling while preview is open
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener(
-        "keydown",
-        handleKeyDown,
-      );
-
-      document.body.style.overflow = "";
-    };
-  }, [isImagePreviewOpen]);
+  const closePreview = () => {
+    setPreviewOpen(false);
+  };
 
   return (
     <>
@@ -109,25 +87,32 @@ export default function BlogHero({ blog }: BlogHeroProps) {
         </div>
 
         {/* Cover image */}
-        <button
-          type="button"
-          onClick={() => setIsImagePreviewOpen(true)}
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label="Open image preview"
+          onClick={() => setPreviewOpen(true)}
+          onKeyDown={(event) => {
+            if (
+              event.key === "Enter" ||
+              event.key === " "
+            ) {
+              event.preventDefault();
+              setPreviewOpen(true);
+            }
+          }}
           className="
             group
-            block
-            w-full
+            relative
             cursor-zoom-in
             overflow-hidden
             rounded-2xl
             border
             border-border
-            text-left
             focus-visible:outline-none
             focus-visible:ring-2
             focus-visible:ring-ring
-            focus-visible:ring-offset-2
           "
-          aria-label="Open image preview"
         >
           <img
             src={imageSrc}
@@ -143,43 +128,69 @@ export default function BlogHero({ blog }: BlogHeroProps) {
               md:h-112
             "
           />
-        </button>
+
+          {/* Click hint */}
+          <div
+            className="
+              pointer-events-none
+              absolute
+              inset-0
+              flex
+              items-center
+              justify-center
+              bg-black/0
+              opacity-0
+              transition-all
+              duration-200
+              group-hover:bg-black/20
+              group-hover:opacity-100
+            "
+          >
+            <span
+              className="
+                rounded-full
+                bg-black/70
+                px-4
+                py-2
+                text-sm
+                font-medium
+                text-white
+                backdrop-blur-sm
+              "
+            >
+              Click to preview
+            </span>
+          </div>
+        </div>
       </section>
 
       {/* Image preview */}
-      {isImagePreviewOpen && (
+      {previewOpen && (
         <div
           className="
             fixed
             inset-0
-            z-50
+            z-[9999]
             flex
             items-center
             justify-center
             bg-black/90
             p-4
-            sm:p-8
           "
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image preview"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setIsImagePreviewOpen(false);
-            }
-          }}
+          onClick={closePreview}
         >
           {/* Close button */}
           <button
             type="button"
-            onClick={() => setIsImagePreviewOpen(false)}
+            onClick={closePreview}
+            aria-label="Close image preview"
             className="
               absolute
               right-4
               top-4
-              z-10
+              z-[10000]
               flex
-              size-10
+              size-11
               items-center
               justify-center
               rounded-full
@@ -191,10 +202,7 @@ export default function BlogHero({ blog }: BlogHeroProps) {
               focus-visible:outline-none
               focus-visible:ring-2
               focus-visible:ring-white
-              sm:right-6
-              sm:top-6
             "
-            aria-label="Close image preview"
           >
             <X className="size-5" />
           </button>
@@ -203,13 +211,14 @@ export default function BlogHero({ blog }: BlogHeroProps) {
           <img
             src={imageSrc}
             alt={blog.title}
+            onClick={(event) => event.stopPropagation()}
             className="
               max-h-[90vh]
-              max-w-full
+              max-w-[95vw]
               rounded-lg
               object-contain
               shadow-2xl
-              sm:max-h-[92vh]
+              select-none
             "
           />
         </div>
