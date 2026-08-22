@@ -48,7 +48,7 @@ export function LandingFeatured() {
               <Link
                 key={blog._id}
                 /* Corrected detail route link to /feed/:id */
-                to={`/feed/${blog._id}`}
+                to={`/feed/${blog.slug}`}
                 className="group flex flex-col gap-3 sm:gap-4"
               >
                 <div className="relative aspect-16/10 overflow-hidden rounded-xl border border-border">
