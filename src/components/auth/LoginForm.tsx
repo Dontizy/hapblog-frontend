@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
 import {
   AlertCircle,
   Eye,
@@ -39,7 +38,6 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const state = location.state as LocationState | null;
-
   const from = state?.from;
 
   const redirectTo = from?.pathname
@@ -66,15 +64,8 @@ export default function LoginForm() {
       },
       {
         onSuccess: (data) => {
-          /*
-           * Save authentication token.
-           */
           login(data.token);
 
-          /*
-           * Return to the page the user originally wanted.
-           * If they came directly to /login, go to /feeds.
-           */
           navigate(redirectTo, {
             replace: true,
           });
@@ -111,7 +102,8 @@ export default function LoginForm() {
               setIdentifier(e.target.value)
             }
             disabled={isPending}
-            className="h-11 pl-10 transition-shadow focus-visible:ring-2 focus-visible:ring-accent/50"
+            required
+            className="h-11 pl-10"
           />
         </div>
       </div>
@@ -125,7 +117,7 @@ export default function LoginForm() {
 
           <Link
             to="/forgot-password"
-            className="text-xs text-muted-foreground transition-colors hover:text-accent"
+            className="text-xs text-muted-foreground hover:text-accent"
           >
             Forgot password?
           </Link>
@@ -148,7 +140,8 @@ export default function LoginForm() {
               setPassword(e.target.value)
             }
             disabled={isPending}
-            className="h-11 pl-10 pr-10 transition-shadow focus-visible:ring-2 focus-visible:ring-accent/50"
+            required
+            className="h-11 pl-10 pr-10"
           />
 
           <button
@@ -163,7 +156,7 @@ export default function LoginForm() {
                 : "Show password"
             }
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+            className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
           >
             {showPassword ? (
               <EyeOff className="size-4" />
@@ -176,15 +169,7 @@ export default function LoginForm() {
 
       {/* Error */}
       {isError && (
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: -6,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
+        <div
           className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3"
           role="alert"
         >
@@ -196,37 +181,24 @@ export default function LoginForm() {
               "Login failed. Check your credentials and try again.",
             )}
           </p>
-        </motion.div>
+        </div>
       )}
 
       {/* Sign in */}
-      <motion.div
-        whileHover={
-          !isPending && isFormValid
-            ? { scale: 1.01 }
-            : undefined
-        }
-        whileTap={
-          !isPending && isFormValid
-            ? { scale: 0.98 }
-            : undefined
-        }
+      <Button
+        type="submit"
+        disabled={!isFormValid || isPending}
+        className="h-11 w-full"
       >
-        <Button
-          type="submit"
-          disabled={!isFormValid || isPending}
-          className="h-11 w-full"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Signing in...
-            </>
-          ) : (
-            "Sign in"
-          )}
-        </Button>
-      </motion.div>
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 size-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          "Sign in"
+        )}
+      </Button>
     </form>
   );
 }

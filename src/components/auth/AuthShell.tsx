@@ -20,13 +20,13 @@ export default function AuthShell({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-5 sm:px-6">
+      <header className="flex shrink-0 items-center justify-between px-4 py-5 sm:px-6">
         <Logo />
         <ThemeToggle />
       </header>
 
       {/* Auth content */}
-      <main className="flex flex-1 justify-center px-4 pt-16 pb-10 sm:items-center sm:py-10">
+      <main className="flex flex-1 flex-col px-4 pb-8 pt-10 sm:items-center sm:justify-center sm:py-10">
         <div className="w-full max-w-sm">
           {/* Heading */}
           <div className="mb-8 space-y-2 text-center">
@@ -48,18 +48,18 @@ export default function AuthShell({
               {footer}
             </p>
           )}
+
+          {/* Back to home */}
+          <div className="mt-8 text-center">
+            <Link
+              to="/"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Back to home
+            </Link>
+          </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="px-4 py-6 text-center text-xs text-muted-foreground">
-        <Link
-          to="/"
-          className="transition-colors hover:text-foreground"
-        >
-          Back to home
-        </Link>
-      </footer>
     </div>
   );
 }

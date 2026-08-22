@@ -24,6 +24,8 @@ export default function ForgotPasswordForm() {
   ) => {
     e.preventDefault();
 
+    if (isPending) return;
+
     const normalizedIdentifier = identifier.trim().toLowerCase();
 
     if (!normalizedIdentifier) return;
@@ -40,10 +42,16 @@ export default function ForgotPasswordForm() {
     );
   };
 
+  /*
+   * Success state
+   */
   if (isSubmitted) {
     return (
       <div className="space-y-5">
-        <div className="flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
+        <div
+          className="flex items-start gap-3 rounded-lg border
+            border-emerald-500/20 bg-emerald-500/10 px-4 py-3"
+        >
           <Mail className="mt-0.5 size-4 shrink-0 text-emerald-500" />
 
           <p className="text-sm leading-relaxed text-emerald-600 dark:text-emerald-400">
@@ -57,7 +65,7 @@ export default function ForgotPasswordForm() {
 
         <Button
           type="button"
-          className="h-10 w-full"
+          className="h-11 w-full"
           onClick={() => setIsSubmitted(false)}
         >
           Send again
@@ -71,27 +79,23 @@ export default function ForgotPasswordForm() {
       onSubmit={handleForgotPassword}
       className="space-y-5"
     >
-      {/* Identifier */}
+      {/* Username / Email */}
       <div className="space-y-2">
         <Label htmlFor="identifier">
-          Username or email
+          Username or Email
         </Label>
 
         <div className="relative">
           <Mail
-            className="
-              pointer-events-none
-              absolute
-              left-3
-              top-1/2
-              size-4
-              -translate-y-1/2
-              text-muted-foreground
-            "
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3
+              top-1/2 size-4 -translate-y-1/2
+              text-muted-foreground"
           />
 
           <Input
             id="identifier"
+            name="identifier"
             type="text"
             autoComplete="username"
             placeholder="Username or email"
@@ -99,13 +103,9 @@ export default function ForgotPasswordForm() {
             onChange={(e) => setIdentifier(e.target.value)}
             disabled={isPending}
             required
-            className="
-              h-11
-              pl-10
-              transition-shadow
+            className="h-11 pl-10 transition-shadow
               focus-visible:ring-2
-              focus-visible:ring-accent/50
-            "
+              focus-visible:ring-accent/50"
           />
         </div>
       </div>
@@ -113,25 +113,17 @@ export default function ForgotPasswordForm() {
       {/* Error */}
       {isError && (
         <div
-          className="
-            flex
-            items-start
-            gap-3
-            rounded-lg
-            border
-            border-red-500/20
-            bg-red-500/10
-            px-4
-            py-3
-            animate-in
-            fade-in
-            slide-in-from-top-1
-            duration-200
-          "
+          className="flex items-start gap-3 rounded-lg
+            border border-destructive/20
+            bg-destructive/10 px-4 py-3"
+          role="alert"
         >
-          <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
+          <AlertCircle
+            aria-hidden="true"
+            className="mt-0.5 size-4 shrink-0 text-destructive"
+          />
 
-          <p className="text-sm leading-snug text-red-400">
+          <p className="text-sm leading-snug text-destructive">
             {getErrorMessage(
               error,
               "Failed to send reset email. Please try again.",
@@ -144,15 +136,16 @@ export default function ForgotPasswordForm() {
       <Button
         type="submit"
         disabled={isPending || !identifier.trim()}
-        className="h-10 w-full"
+        className="h-11 w-full"
       >
-        {isPending && (
-          <Loader2 className="mr-2 size-4 animate-spin" />
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 size-4 animate-spin" />
+            Sending...
+          </>
+        ) : (
+          "Send reset instructions"
         )}
-
-        {isPending
-          ? "Sending..."
-          : "Send reset instructions"}
       </Button>
     </form>
   );

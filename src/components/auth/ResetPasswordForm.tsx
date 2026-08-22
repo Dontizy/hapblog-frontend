@@ -42,6 +42,8 @@ export default function ResetPasswordForm() {
   ) => {
     e.preventDefault();
 
+    if (isPending) return;
+
     setValidationError("");
 
     if (!token) {
@@ -100,7 +102,7 @@ export default function ResetPasswordForm() {
 
         <Button
           type="button"
-          className="h-10 w-full"
+          className="h-11 w-full"
           onClick={() => navigate("/login")}
         >
           Continue to login
@@ -127,6 +129,7 @@ export default function ResetPasswordForm() {
         <div className="relative">
           <Input
             id="password"
+            name="password"
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
             placeholder="••••••••"
@@ -137,13 +140,7 @@ export default function ResetPasswordForm() {
             }}
             disabled={isPending}
             required
-            className="
-              h-11
-              pr-10
-              transition-shadow
-              focus-visible:ring-2
-              focus-visible:ring-accent/50
-            "
+            className="h-11 pr-10 transition-shadow focus-visible:ring-2 focus-visible:ring-accent/50"
           />
 
           <button
@@ -151,23 +148,14 @@ export default function ResetPasswordForm() {
             onClick={() =>
               setShowPassword((prev) => !prev)
             }
+            disabled={isPending}
             aria-label={
               showPassword
                 ? "Hide password"
                 : "Show password"
             }
-            className="
-              absolute
-              inset-y-0
-              right-0
-              flex
-              w-10
-              items-center
-              justify-center
-              text-muted-foreground
-              transition-colors
-              hover:text-foreground
-            "
+            aria-pressed={showPassword}
+            className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
           >
             {showPassword ? (
               <EyeOff className="size-4" />
@@ -191,6 +179,7 @@ export default function ResetPasswordForm() {
         <div className="relative">
           <Input
             id="confirmPassword"
+            name="confirmPassword"
             type={
               showConfirmPassword
                 ? "text"
@@ -205,13 +194,7 @@ export default function ResetPasswordForm() {
             }}
             disabled={isPending}
             required
-            className="
-              h-11
-              pr-10
-              transition-shadow
-              focus-visible:ring-2
-              focus-visible:ring-accent/50
-            "
+            className="h-11 pr-10 transition-shadow focus-visible:ring-2 focus-visible:ring-accent/50"
           />
 
           <button
@@ -221,23 +204,14 @@ export default function ResetPasswordForm() {
                 (prev) => !prev,
               )
             }
+            disabled={isPending}
             aria-label={
               showConfirmPassword
                 ? "Hide confirmation password"
                 : "Show confirmation password"
             }
-            className="
-              absolute
-              inset-y-0
-              right-0
-              flex
-              w-10
-              items-center
-              justify-center
-              text-muted-foreground
-              transition-colors
-              hover:text-foreground
-            "
+            aria-pressed={showConfirmPassword}
+            className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
           >
             {showConfirmPassword ? (
               <EyeOff className="size-4" />
@@ -251,25 +225,15 @@ export default function ResetPasswordForm() {
       {/* Error */}
       {(validationError || isError) && (
         <div
-          className="
-            flex
-            items-start
-            gap-3
-            rounded-lg
-            border
-            border-red-500/20
-            bg-red-500/10
-            px-4
-            py-3
-            animate-in
-            fade-in
-            slide-in-from-top-1
-            duration-200
-          "
+          className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3"
+          role="alert"
         >
-          <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
+          <AlertCircle
+            aria-hidden="true"
+            className="mt-0.5 size-4 shrink-0 text-destructive"
+          />
 
-          <p className="text-sm leading-snug text-red-400">
+          <p className="text-sm leading-snug text-destructive">
             {validationError ||
               getErrorMessage(
                 error,
@@ -282,16 +246,21 @@ export default function ResetPasswordForm() {
       {/* Submit */}
       <Button
         type="submit"
-        disabled={isPending}
-        className="h-10 w-full"
+        disabled={
+          isPending ||
+          !password ||
+          !confirmPassword
+        }
+        className="h-11 w-full"
       >
-        {isPending && (
-          <Loader2 className="mr-2 size-4 animate-spin" />
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 size-4 animate-spin" />
+            Resetting password...
+          </>
+        ) : (
+          "Reset password"
         )}
-
-        {isPending
-          ? "Resetting password..."
-          : "Reset password"}
       </Button>
     </form>
   );
