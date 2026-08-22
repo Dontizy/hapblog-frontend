@@ -77,7 +77,7 @@ export default function BlogHero({ blog }: BlogHeroProps) {
 
               <span className="mx-1.5">·</span>
 
-              {blog.readingTime}
+              {blog.readingTime} min read
             </div>
           </div>
         </div>
@@ -102,6 +102,9 @@ export default function BlogHero({ blog }: BlogHeroProps) {
               w-full
               cursor-zoom-in
               object-cover
+              transition-transform
+              duration-300
+              hover:scale-[1.02]
               sm:h-80
               md:h-112
             "
@@ -121,6 +124,9 @@ export default function BlogHero({ blog }: BlogHeroProps) {
             justify-center
             bg-black/90
             p-4
+            animate-in
+            fade-in
+            duration-200
           "
           onClick={() => setIsPreviewOpen(false)}
         >
@@ -156,6 +162,9 @@ export default function BlogHero({ blog }: BlogHeroProps) {
               max-h-[90vh]
               max-w-[95vw]
               object-contain
+              animate-in
+              zoom-in-95
+              duration-200
             "
           />
         </div>
