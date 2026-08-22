@@ -42,7 +42,11 @@ export default function AppRoutes() {
         {/* Auth routes without SiteHeader */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgotton-password" element={<ForgotPasswordPage/>} />
+        <Route
+  path="/forgot-password"
+  element={<ForgotPasswordPage />}
+/>
+        
         <Route path="/reset-password/:token" element={<ResetPasswordPage/>} />
 
 

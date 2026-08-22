@@ -1,8 +1,7 @@
-// components/auth/AuthShell.tsx
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import {Logo} from "../Logo";
+import { Logo } from "../Logo";
 import { ThemeToggle } from "../theme-toggle";
 
 interface AuthShellProps {
@@ -19,25 +18,31 @@ export default function AuthShell({
   footer,
 }: AuthShellProps) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Header */}
       <header className="flex items-center justify-between px-4 py-5 sm:px-6">
         <Logo />
         <ThemeToggle />
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-4 py-10">
+      {/* Auth content */}
+      <main className="flex flex-1 justify-center px-4 pt-16 pb-10 sm:items-center sm:py-10">
         <div className="w-full max-w-sm">
+          {/* Heading */}
           <div className="mb-8 space-y-2 text-center">
-            <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight">
+            <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               {title}
             </h1>
-            <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
+
+            <p className="mx-auto max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
               {subtitle}
             </p>
           </div>
 
+          {/* Form */}
           {children}
 
+          {/* Secondary action */}
           {footer && (
             <p className="mt-6 text-center text-sm text-muted-foreground">
               {footer}
@@ -46,8 +51,12 @@ export default function AuthShell({
         </div>
       </main>
 
+      {/* Footer */}
       <footer className="px-4 py-6 text-center text-xs text-muted-foreground">
-        <Link to="/feeds" className="hover:text-foreground transition-colors">
+        <Link
+          to="/"
+          className="transition-colors hover:text-foreground"
+        >
           Back to home
         </Link>
       </footer>
